@@ -26,25 +26,32 @@ Sbox_inv = (
             )
 
 
-# Returns the array of output data of size 10.000
 def read_output_file():
+    """Returns the array of output data of size 10.000"""
     file = scipy.io.loadmat('output_data.mat')
     return file['output_data']
 
 
-# Returns the multi dimensional array of traces, 10.000 rows, 2.000 columns
 def read_traces_file():
+    """Returns the multi dimensional array of traces, 10.000 rows, 2.000 columns"""
     file = scipy.io.loadmat('hardware_traces.mat')
     return file['traces']
 
 
-# Generate all keys of 8 bits
 def generate_all_keys():
+    """
+    :return: All 256 keys from 8 bits 
+    """
     return range(0, 256)
 
 
-# Calculate the hamming distance of two values, courtesty of https://en.wikipedia.org/wiki/Hamming_distance
 def hamming_distance(s1, s2):
+    """
+    Calculate the hamming distance of two values, courtesty of https://en.wikipedia.org/wiki/Hamming_distance
+    :param s1: input, converted to 8 bit 
+    :param s2: input, converted to 8 bit
+    :return: the hamming distance of s1 and s2
+    """
     s1 = format(s1, '08b') # Convert to 8 bit binary
     s2 = format(s2, '08b') # Convert to 8 bit binary
     if len(s1) != len(s2):
@@ -52,8 +59,13 @@ def hamming_distance(s1, s2):
     return sum(el1 != el2 for el1, el2 in zip(s1, s2))
 
 
-# Create the hamming distance matrix given the output values and all the keys
 def create_hamming_distance_matrix(outputs, keys):
+    """
+    Create the hamming distance matrix given the output values and all the keys
+    :param outputs: 
+    :param keys: all the keys
+    :return: Hamming distance matrix
+    """
     hamming_distance_matrix = numpy.zeros((10000, 256)) # 10.000 rows, 256 columns
     row = 0
     for output in outputs:
@@ -68,8 +80,13 @@ def create_hamming_distance_matrix(outputs, keys):
     return hamming_distance_matrix
 
 
-# Compute the correlation and show the plot
 def create_column_wise_correlation(traces, hamming_distance_matrix):
+    """
+    Compute the correlation and show the plot
+    :param traces: all the traces
+    :param hamming_distance_matrix: 
+    :return: shows the correlation graph, prints the possible key
+    """
     candidates = []
 
     for candidate in range(256):
@@ -92,7 +109,7 @@ def create_column_wise_correlation(traces, hamming_distance_matrix):
 
     print("Possible candidate is: " + str(highest_correlated_candidate[2]) + " correlation value " + str(highest_correlated_candidate[3]))
 
-    for p in candidates:
+    for p in sorted_candidates:
         if p[2] != highest_correlated_candidate[2]:
             plt.plot(p[0], p[1], 'r', label=p[2])
         else:
