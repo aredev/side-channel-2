@@ -4,6 +4,7 @@ from scipy.stats.stats import pearsonr
 import matplotlib.pyplot as plt
 
 __author__ = "Tom Sandmann (s4330048) & Abdullah Rasool (s4350693)"
+__note__ = "Running this script might take a long time due to the big matrixes."
 
 # Inverted S-box layer, courtesy of https://gist.github.com/bonsaiviking/5571001
 Sbox_inv = (
@@ -48,8 +49,8 @@ def generate_all_keys():
 def hamming_distance(s1, s2):
     """
     Calculate the hamming distance of two values, courtesty of https://en.wikipedia.org/wiki/Hamming_distance
-    :param s1: input, converted to 8 bit 
-    :param s2: input, converted to 8 bit
+    :param s1: input, converted to 8 bit, fixed length in the environment
+    :param s2: input, converted to 8 bit, fixed length in the environment
     :return: the hamming distance of s1 and s2
     """
     s1 = format(s1, '08b') # Convert to 8 bit binary
@@ -69,9 +70,9 @@ def create_hamming_distance_matrix(outputs, keys):
     hamming_distance_matrix = numpy.zeros((10000, 256)) # 10.000 rows, 256 columns
     row = 0
     for output in outputs:
-        output = output[0]
+        output = output[0] # returns oddly enough an array, first element is the xor value...
         for k in keys:
-            output_xor_k = k ^ output # returns oddly enough an array, first element is the xor value...
+            output_xor_k = k ^ output
             s_in = Sbox_inv[output_xor_k]
             hd_value = hamming_distance(output, s_in)
             hamming_distance_matrix[row][k] = hd_value

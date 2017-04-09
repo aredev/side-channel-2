@@ -2,10 +2,10 @@ import scipy.io
 import numpy
 from scipy.stats.stats import pearsonr
 import matplotlib.pyplot as plt
-from random import randint
 
 __author__ = "Tom Sandmann (s4330048) & Abdullah Rasool (s4350693)"
 
+# Present sbox
 sbox = dict([
     (0, 12),
     (1, 5),
@@ -25,46 +25,22 @@ sbox = dict([
     (15, 2),
 ])
 
-
 def read_input_file():
     """ Read the input trace file
     :return: array of all the input traces"""
     return scipy.io.loadmat('input.mat')['input']
 
 
-def calculate_y(inputs):
-    value_predication_matrix = numpy.zeros((2000, 15))
-
-    row = 0
-    keys = range(0, 15) # All possible keys k
-    for in_value in inputs:
-        in_value = in_value[0]
-        for k in keys:
-            x0 = r0 = randint(0, 15) # 4 bit random value
-            in1 = in_value ^ r0
-            x1 = in1 ^ k
-            y0 = lookup_table_A(x0, x1)
-            y1 = lookup_table_B(x0, x1)
-            value_predication_matrix[row][k] = y0 ^ y1
-        row += 1
-    return value_predication_matrix
-
-
-def lookup_table_A(x0, x1):
-    bin_x0 = format(x0, '04b')
-    bin_x1 = format(x1, '04b')
-    return "a"
-
-def lookup_table_B(x0, x1):
-    # sbox[hex(x0 ^ x1)] ^ lookup_table_A(x0Z)
-    return "b"
-
-
 def calculate_y_no_masking(inputs):
-    value_predication_matrix = numpy.zeros((2000, 15))
+    """
+    Compute the outputs given the inputs by performing the regular Present cipher without masking
+    :param inputs: 
+    :return: 
+    """
+    value_predication_matrix = numpy.zeros((2000, 16))
 
     row = 0
-    keys = range(0, 15)  # All possible keys k
+    keys = range(0, 16)  # All possible keys k
     for in_value in inputs:
         in_value = in_value[0]
         for k in keys:
@@ -83,6 +59,11 @@ def read_traces_file():
 
 
 def preprocess_traces(traces):
+    """
+    Preprocess all the traces
+    :param traces: 
+    :return: 
+    """
     traces_prime = []
     for trace in traces:
         traces_prime.append(preprocess_row(trace))
@@ -106,9 +87,15 @@ def preprocess_row(row):
 
 
 def correlation_analysis(p_traces, vpm):
+    """
+    Compute the correlation between the preprocessed traces and the vpm
+    :param p_traces: 
+    :param vpm: value prediction matrix (key, input => present cipher => output) 
+    :return: 
+    """
     candidates = []
 
-    for candidate in range(15):
+    for candidate in range(16):
         time_samples = []
         coefficients = []
         for sample in range(45):
